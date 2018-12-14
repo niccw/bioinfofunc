@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import sys
+from array import array
 import pandas as pd
 import pysam
-from array import array
+
 
 class Fasta(object):
-    def __init__(self,path:str):
+    def __init__(self , path:str):
         self.path = path
         seq={}
-        with open(path,"r") as f:
+        with open(path , "r") as f:
             for line in f:
                 if line.startswith(">"):
                     seqid = line.rstrip().replace(">","")
