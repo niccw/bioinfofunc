@@ -29,7 +29,7 @@ class Fasta(object):
         d = {}
         seqName = [*self.seqDict]
         for i in seqName:
-            a = seqName.split("|")
+            a = i.split("|")
             d[a[0]] = []
             for j in range(1,len(a)-1):
                 d[a[0]].append(j)
