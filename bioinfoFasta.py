@@ -31,6 +31,6 @@ class Fasta(object):
         for i in seqName:
             a = i.split("|")
             d[a[0]] = []
-            for j in range(1,len(a)-1):
-                d[a[0]].append(j)
+            for j in range(1,len(a)):
+                d[a[0]].append(a[j])
         return d
