@@ -105,17 +105,3 @@ class Bed(object):
                             print(feature)
                     features_str = ",".join(features_list)
                     print(f"{chrom}\t{idx}\t{features_str}\t{len(features_list)}")
-
-
-
-
-
-
-
-
-
-
-
-        
-
-
