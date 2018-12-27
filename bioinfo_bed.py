@@ -90,11 +90,12 @@ class Bed(object):
             last_row["end"] = row["end"]
         self.cluster_dict = d
         self.cluster_param = "span: {}".format(span)
-
-    def print_cluster(self):
-        for chrom in [*self.cluster_dict]:
+    
+    @staticmethod
+    def print_cluster(cluster_dict):
+        for chrom in [*cluster_dict]:
             #enumerate
-            for idx,cluster in enumerate(self.cluster_dict[chrom]):
+            for idx,cluster in enumerate(cluster_dict[chrom]):
                 if cluster:
                     features_list = []
                     for feature in cluster:
