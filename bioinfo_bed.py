@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-
+import argparse
 import pandas as pd
 
 class Bed(object):
-    def __init__(self,path,annot=False):
+    def __init__(self,path,annot=False, header=False):
         self.path = path
         self.cluster_dict = None
         self.cluster_param = None
@@ -19,6 +19,8 @@ class Bed(object):
             bed_col = 3
         
         with open(path,"r") as f:
+            if header:
+                next(f)
             for line in f:
                 if not line.startswith("#"):
                     row = line.strip().split("\t")[:bed_col]
@@ -105,3 +107,59 @@ class Bed(object):
                             print(feature)
                     features_str = ",".join(features_list)
                     print(f"{chrom}\t{idx}\t{features_str}\t{len(features_list)}")
+
+    @staticmethod
+    def read_bed_closest(bed, attr_col:int)->dict:
+        c = attr_col - 1 # 1-base to 0-base
+        d = {}
+        with open(bed,"r") as f:
+            for line in f:
+                col = line.strip().split("\t")
+                k = "|".join([col[0], col[1], col[2]])
+                if k in d:
+                    d[k] = d[k] + "," + col[c]
+                else:
+                    d[k] = col[c]
+        return d
+
+    @staticmethod
+    def label_bed(bed,label_dict,a="annot",header=False):
+        with open(bed,"r") as f:
+            if header:
+                h = f.readline().strip().split("\t")
+                h.append(a)
+                print(*h,sep="\t")
+            for line in f:
+                col = line.strip().split("\t")
+                k = "|".join([col[0], col[1], col[2]])
+                if k in label_dict:
+                    col.append(label_dict[k])
+                    print(*col, sep="\t")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("bed", help="bed file")
+    parser.add_argument("--header", action="store_true", help="Default = False")
+    # Cluster
+    parser.add_argument("--cluster", action="store_true", help="Cluster featuresby distance. Work with -d/--distance")
+    parser.add_argument("-d,--distance", dest="d", type = int, default = 2000, help="Distance (in bp) to cluster features. Default = 2000")
+    # Special annotatation
+    parser.add_argument("--bbannot", action="store_true", help="Annotate bed based on another bed")
+    parser.add_argument("--dictbed", dest="dbed", type = str, help="BED provide information of annotation. Work with --acol. This bed has no header.")
+    parser.add_argument("--acol", dest="acol", type = int, help="Column containing the annotation info (1-base)")
+    parser.add_argument("--annot", dest="annot", type = str, help="New column name")
+
+    args = parser.parse_args()
+    
+    # Cluster
+    if args.cluster:
+        bed = Bed(args.bed)
+        bed.cluster(span=args.d)
+        Bed.print_cluster(bed.cluster_dict)
+    
+    # Special annotatation
+    if args.bbannot:
+        d = Bed.read_bed_closest(bed=args.dbed,attr_col=args.acol)
+        Bed.label_bed(bed=args.bed,label_dict=d, header=args.header, a=args.annot)
+
+
