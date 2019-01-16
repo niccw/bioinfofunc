@@ -21,14 +21,13 @@ class Sam(object):
         for read in f.fetch():
             # re-set the covergae dict if this is a new scaffold
             if read.reference_name != prevScaffold:
-                #print(read.reference_name)
                 sl.append(read.reference_name)
                 # print previous scaffold if not the head of file
                 if prevScaffold != "":
-                    idx = sorted([*clen]).index(read.reference_name)  # use the sorted index (= chromIdx.tsv)
+                    idx = sorted([*clen]).index(prevScaffold)  # use the sorted index
                     for i in clist:
                         print(f"{idx}\t{i}",file=o)
-                clist = array('L',[0]*clen[read.reference_name])
+                clist = array('L',[0]*clen[read.reference_name])  # reset array
                 prevScaffold = read.reference_name  # update variable
             # skip non unique mapped reads
             if read.has_tag("XA"):
@@ -39,7 +38,7 @@ class Sam(object):
                 clist[p] += 1
 
         # print last chrom
-        idx = sorted([*clen]).index(read.reference_name)
+        idx = sorted([*clen]).index(prevScaffold)
         for i in clist:
             print(f"{idx}\t{i}",file=o)
             
@@ -48,7 +47,7 @@ class Sam(object):
             for k,v in clen.items():
                 if k not in sl:
                     clist = array('I',[0]*v)
-                    idx = [*clen].index(k)
+                    idx = sorted([*clen]).index(k)
                     for i in clist:
                         print(f"{idx}\t{i}",file=o)
         f.close()
@@ -56,7 +55,7 @@ class Sam(object):
         omap = open(outpath+".scaffoldmap","w+")
         for i,v in enumerate(sorted([*clen])):
             print(f"{v}\t{i}",file=omap)
-        print(f"Done. Coverage is written in {outpath}.cov and Scaffold map is written in {outpath}.scaffoldmap")
+        print(f"Done. Coverage is written in {outpath}.cov and Scaffold map is written in {outpath}.scaffoldmap",file=sys.stderr)
 
 
 if __name__ == "__main__":
