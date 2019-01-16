@@ -37,7 +37,12 @@ class Sam(object):
             epos = read.pos + read.tlen
             for p in range(read.pos,epos):
                 clist[p] += 1
-    
+
+        # print last chrom
+        idx = sorted([*clen]).index(read.reference_name)
+        for i in clist:
+            print(f"{idx}\t{i}",file=o)
+            
         # Add empty array for scaffold not present in SAM/BAM
         if not test:
             for k,v in clen.items():
@@ -59,10 +64,13 @@ if __name__ == "__main__":
     parser.add_argument("sam", type = str, help="SAM or BAM file")
     parser.add_argument("-ic",action="store_true", help=" Calcualte the insert coverage and output .cov and .scaffoldmap")
     parser.add_argument("-o,--out",type = str, dest="o",help="Prefix of output files")
-    parser.add_argument("--test",action="store_true", help="Run in test mode")
+    parser.add_argument("--test",action="store_true", help="Run in test mode.")
     
     args = parser.parse_args()
 
     if args.ic:
         s = Sam(args.sam)
+        if args.test:
+            print("Run in test mode.",file=sys.stderr)
         s.insertCoverage(args.o,test=args.test)
+     
