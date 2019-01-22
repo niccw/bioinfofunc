@@ -5,6 +5,7 @@ import argparse
 import pysam
 import sys
 from pathlib import Path
+import bisect
 
 
 class Sam(object):
@@ -70,16 +71,25 @@ class Sam(object):
 
         if flag is None:
             for read in sam.fetch():
-                if read.qname in qname:
-                    outfile.write(read)
-                    # assume unique value in qname list
-                    qname.remove(read.qname)
+                # assume qname is long, use binary search
+                if len(qname) > 0: # still have items to look for
+                    m = qname[bisect.bisect(qname,read.qname)-1] == read.qname
+                    if m:
+                        outfile.write(read)
+                        # assume unique value in qname list
+                        qname.remove(read.qname)
+                else:
+                    break  # found all qname needed, stop looking at remaining sam/bam
         else:  # extract read with specific flag only
             for read in sam.fetch():
-                if read.qname in qname and read.flag == flag:
-                    outfile.write(read)
-                    # assume unique value in qname list
-                    qname.remove(read.qname)
+                if len(qname) > 0:
+                    m = qname[bisect.bisect(qname,read.qname)-1] == read.qname
+                    if m and read.flag == flag:
+                        outfile.write(read)
+                        # assume unique value in qname list
+                        qname.remove(read.qname)
+                else:
+                    break
 
 
 if __name__ == "__main__":
