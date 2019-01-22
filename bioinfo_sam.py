@@ -73,21 +73,23 @@ class Sam(object):
             for read in sam.fetch():
                 # assume qname is long, use binary search
                 if len(qname) > 0: # still have items to look for
-                    m = qname[bisect.bisect(qname,read.qname)-1] == read.qname
+                    binary_idx = bisect.bisect(qname,read.qname)-1
+                    m = qname[binary_idx] == read.qname
                     if m:
                         outfile.write(read)
                         # assume unique value in qname list
-                        qname.remove(read.qname)
+                        qname.pop(binary_idx)
                 else:
                     break  # found all qname needed, stop looking at remaining sam/bam
         else:  # extract read with specific flag only
             for read in sam.fetch():
                 if len(qname) > 0:
-                    m = qname[bisect.bisect(qname,read.qname)-1] == read.qname
+                    binary_idx = bisect.bisect(qname,read.qname)-1
+                    m = qname[binary_idx] == read.qname
                     if m and read.flag == flag:
                         outfile.write(read)
                         # assume unique value in qname list
-                        qname.remove(read.qname)
+                        qname.pop(binary_idx)
                 else:
                     break
 
