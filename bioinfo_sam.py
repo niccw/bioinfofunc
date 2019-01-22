@@ -120,7 +120,6 @@ if __name__ == "__main__":
         with open(args.f, "r") as q:
             qname_list = q.read().splitlines()
         qname_list.sort()
-        print(qname_list)
         s = Sam(args.sam)
         # filter bam file name
         outname = Path(args.sam).stem + ".filtered.bam"
