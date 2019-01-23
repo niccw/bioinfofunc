@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
 
     """
-    parser = argparse.ArgumentParser(escription=help_text,formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description=help_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("bed", help="bed file")
     parser.add_argument("--header", action="store_true", help="Default = False")
     # Cluster
