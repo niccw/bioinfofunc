@@ -136,7 +136,38 @@ class Bed(object):
                     col.append(label_dict[k])
                     print(*col, sep="\t")
 
+    def collapse(self):
+
+        last_row = {
+            "chr":"",
+            "start":"",
+            "end":"",
+            "annot":""
+        }
+
+        for _,row in self.bed.iterrows():
+            if row["chr"] == last_row["chr"] and row["start"] == last_row["start"] and row["end"] == last_row["end"]:
+                last_row["annot"] =  last_row["annot"] + "," + str(row["annot"])
+            else:
+                print(f'{last_row["chr"]}\t{last_row["start"]}\t{last_row["end"]}\t{last_row["annot"]}')
+                last_row["chr"] = row["chr"]
+                last_row["start"] = row["start"]
+                last_row["end"] = row["end"]
+                last_row["annot"] = row["annot"]
+        # print last row
+        print(f'{last_row["chr"]}\t{last_row["start"]}\t{last_row["end"]}\t{last_row["annot"]}')
+
+            
+
+
 if __name__ == "__main__":
+    help_text = """
+    Example:
+    - collapse bed (by chr,start,end), desciprtion/annotation are concatanated by ','
+    ./bioinfo_bed.py --collapse sample.bed
+
+    
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("bed", help="bed file")
     parser.add_argument("--header", action="store_true", help="Default = False")
@@ -148,12 +179,15 @@ if __name__ == "__main__":
     parser.add_argument("--dictbed", dest="dbed", type = str, help="BED provide information of annotation. Work with --acol. This bed has no header.")
     parser.add_argument("--acol", dest="acol", type = int, help="Column containing the annotation info (1-base)")
     parser.add_argument("--annot", dest="annot", type = str, help="New column name")
+    # Collapse
+    parser.add_argument("--collapse", action="store_true", help="Collapse bed, concat. annot by ','")
+
 
     args = parser.parse_args()
     
     # Cluster
     if args.cluster:
-        bed = Bed(args.bed)
+        bed = Bed(args.bed,header=args.header)
         bed.cluster(span=args.d)
         Bed.print_cluster(bed.cluster_dict)
     
@@ -161,5 +195,11 @@ if __name__ == "__main__":
     if args.bbannot:
         d = Bed.read_bed_closest(bed=args.dbed,attr_col=args.acol)
         Bed.label_bed(bed=args.bed,label_dict=d, header=args.header, a=args.annot)
+
+    # Collapse
+    if args.collapse:
+        bed = Bed(args.bed,annot=True, header=args.header)
+        bed.collapse()
+
 
 
