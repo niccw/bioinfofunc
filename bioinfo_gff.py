@@ -107,7 +107,30 @@ class Gff(object):
         return df
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    help_text = """
+    Example:
+    - Extract gff by ID:
+    ./bioinfo_gff.py --extract sample.gff3 --id id.list > result.gff3
+
+    - Reformat attribute using data from tsv based on ID:
+    ./bioinfo_gff.py --reformat sample.gff3 --rfmap sample.txt --rfdata sample.tsv  > reformated.gff3
+
+    ##### sample.txt #####
+    # To add new attribute, put '-' in the first column (old attribute)
+    -   lc2
+    -   condition
+    -   de
+    old_attr   new_attr
+
+    ##### sample.tsv #####
+    ID  lc2 condition   de  new_attr
+    123   1   0.5       up    new
+    ...
+    ######################
+
+    """
+
+    parser = argparse.ArgumentParser(description=help_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("gff", type = str, help = "GFF3 file.")
     parser.add_argument("--reformat", action="store_true", help = "Reformat the gff attribute. Work with --rfmap and --rfdata.")
     parser.add_argument("--extract", action="store_true", help = "Reformat the gff attribute. Work with --id")
