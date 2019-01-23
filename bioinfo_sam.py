@@ -71,7 +71,6 @@ class Sam(object):
 
         if flag is None:
             for read in sam.fetch():
-                print(read.qname)
                 # assume qname is long, use binary search
                 if len(qname) > 0: # still have items to look for
                     binary_idx = bisect.bisect(qname,read.qname)-1
