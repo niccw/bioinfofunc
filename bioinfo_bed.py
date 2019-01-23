@@ -149,7 +149,8 @@ class Bed(object):
             if row["chr"] == last_row["chr"] and row["start"] == last_row["start"] and row["end"] == last_row["end"]:
                 last_row["annot"] =  last_row["annot"] + "," + str(row["annot"])
             else:
-                print(f'{last_row["chr"]}\t{last_row["start"]}\t{last_row["end"]}\t{last_row["annot"]}')
+                if last_row["chr"] != "":
+                    print(f'{last_row["chr"]}\t{last_row["start"]}\t{last_row["end"]}\t{last_row["annot"]}')
                 last_row["chr"] = row["chr"]
                 last_row["start"] = row["start"]
                 last_row["end"] = row["end"]
@@ -163,12 +164,14 @@ class Bed(object):
 if __name__ == "__main__":
     help_text = """
     Example:
-    - collapse bed (by chr,start,end), desciprtion/annotation are concatanated by ','
+    - Annotate bed by column in another bed (dbed)
+    ./bioinfo_bed.py --bbannot main.bed --dictbed dict.bed --acol 4
+    - Collapse bed (by chr,start,end), desciprtion/annotation are concatanated by ','
     ./bioinfo_bed.py --collapse sample.bed
 
-    
+
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(escription=help_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("bed", help="bed file")
     parser.add_argument("--header", action="store_true", help="Default = False")
     # Cluster
