@@ -159,8 +159,6 @@ class Bed(object):
         print(f'{last_row["chr"]}\t{last_row["start"]}\t{last_row["end"]}\t{last_row["annot"]}')
 
             
-
-
 if __name__ == "__main__":
     help_text = """
     Example:
@@ -203,6 +201,3 @@ if __name__ == "__main__":
     if args.collapse:
         bed = Bed(args.bed,annot=True, header=args.header)
         bed.collapse()
-
-
-
