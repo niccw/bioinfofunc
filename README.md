@@ -1,5 +1,6 @@
 # bioinfofunc
-Class and function for bioinformatics analysis
+Functions perfrom simple tasks upon different file types
+
 
 **BED**
 ```
