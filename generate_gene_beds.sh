@@ -2,9 +2,15 @@
 
 # ref: https://www.biostars.org/p/112251/
 
+if [ $# -eq 0 ]
+  then
+    echo "${0##*/} [chrom_size.tsv] [gene_gff]"
+fi
+
+
 chrom_size=$1
 gene_gff=$2
-b_name=$(basename ${gene_gff%.*})
+b_name=$(basename ${gene_gff%.*}) # or ${0##*/}
 
 # module load bedtools
 
