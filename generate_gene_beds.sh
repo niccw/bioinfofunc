@@ -23,6 +23,9 @@ cat ../$gene_gff | awk '$1 ~ /^#/ {print $0;next} {print $0 | "sort -k1,1 -k4,4n
 
 # filter gene.gff
 cat "${b_name}.sorted.gff3" | awk '$1 ~ /^#/ {print $0;next}$3=="gene"{print}' > "${b_name}.gene.gff3"
+# also generate a gene.bed
+awk 'BEGIN{OFS="\t"} $1~/^#/{next}{print $1,$4-1,$5,$9}' "${b_name}.gene.gff3" > "${b_name}.gene.bed"
+
 
 # intergenic gff (genome - gene)
 bedtools complement -i "${b_name}.gene.gff3" -g ../$chrom_size > "${b_name}.intergenic.bed"
