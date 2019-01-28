@@ -58,10 +58,10 @@ class Rm_out(object):
             strand = "-" if r["strand"] == "C" else "+"
             print(*[geneid, r["query_seq"],  r["query_pos_begin"], r["query_pos_end"], strand], sep = "\t")
 
-    def out2bed(self):
+    def out2bed(self): # bed file is 0-base, out and gff3 is 1-base
         for _, r in self.out.iterrows():
             name = r["matching_repeat"] + ";" + r["repeat_class"]
-            print(*[r["query_seq"], r["query_pos_begin"],  r["query_pos_end"], name], sep = "\t")
+            print(*[r["query_seq"], r["query_pos_begin"]-1,  r["query_pos_end"], name], sep = "\t")
 
 
 if __name__ == "__main__":
