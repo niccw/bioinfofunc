@@ -5,6 +5,7 @@
 if [ $# -eq 0 ]
   then
     echo "${0##*/} [chrom_size.tsv] [gene_gff]"
+    exit
 fi
 
 
