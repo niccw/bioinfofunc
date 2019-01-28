@@ -19,7 +19,7 @@ mkdir sub_beds
 cd sub_beds
 
 # sort gff
-cat $gene_gff | awk '$1 ~ /^#/ {print $0;next} {print $0 | "sort -k1,1 -k4,4n -k5,5n"}' > "s${b_name}.sorted.gff3"
+cat ../$gene_gff | awk '$1 ~ /^#/ {print $0;next} {print $0 | "sort -k1,1 -k4,4n -k5,5n"}' > "s${b_name}.sorted.gff3"
 
 # filter gene.gff
 cat "${b_name}.sorted.gff3" | awk '$1 ~ /^#/ {print $0;next}$3=="gene"{print}' > "${b_name}.gene.gff3"
