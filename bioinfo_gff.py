@@ -106,6 +106,10 @@ class Gff(object):
         df = df.groupby("ID").agg(lambda x : ",".join(str(i) for i in x))
         return df
 
+    def repeat_info(self,gene_gff):
+        pass
+
+
 if __name__ == "__main__":
     help_text = """
     Example:
