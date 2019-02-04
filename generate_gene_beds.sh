@@ -11,7 +11,7 @@ fi
 
 chrom_size=$1
 gene_gff=$2
-b_name=$(basename ${gene_gff%.*}) # or ${0##*/}
+b_name=$(basename ${gene_gff%.*}) 
 
 # module load bedtools
 
