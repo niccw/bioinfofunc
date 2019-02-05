@@ -127,7 +127,7 @@ class Gff(object):
                 r["seqname"] = d[r["seqname"]]
                 print(*r,sep="\t")
             else:
-                pass
+                print(*r,sep="\t")
 
     def fuse(self):
         # fuse row by ID, sorted gff
