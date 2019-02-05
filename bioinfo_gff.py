@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import sys
 import argparse
 import pandas as pd
 
@@ -8,7 +8,6 @@ class Gff(object):
         self.path = path
         self.gff = Gff.readGff(path)
 
-    
     @staticmethod
     def readGff(gffpath):
         '''
@@ -34,6 +33,7 @@ class Gff(object):
                     col = line.strip().split("\t")
                     col_list.append(col)
             gff_df = pd.DataFrame(data=col_list,columns = header)
+            gff_df.sort_values(by=["seqname","start","end"]) #NOTE: sort gff
             return gff_df
     
 
@@ -106,8 +106,57 @@ class Gff(object):
         df = df.groupby("ID").agg(lambda x : ",".join(str(i) for i in x))
         return df
 
+    @staticmethod
+    def _overlap(s1:int,s2:int,e1:int,e2:int)->int:
+        return min(e1,e2)-max(s1,s2)
+
     def repeat_info(self,gene_gff):
         pass
+
+    def rename_chr(self,id_map):
+        d = {}
+        print("##gff-version3")
+        # read the map to dict
+        with open(id_map,"r") as f:
+            for line in f:
+                col = line.strip().split("\t")
+                d[col[0]] = col[1]  # d[original_id] = d[new_id]
+        
+        for _,r in self.gff.iterrows():
+            if r["seqname"] in d:
+                r["seqname"] = d[r["seqname"]]
+                print(*r,sep="\t")
+            else:
+                pass
+
+    def fuse(self):
+        # fuse row by ID, sorted gff
+        last_r = []
+        last_id = ""
+        toprint = []
+        for _,r in self.gff.iterrows():
+            attr_d = Gff._attribute_to_dict(r[8])
+            if attr_d["ID"] == last_id:
+                # if they overlap
+                if Gff._overlap(int(r["start"]),int(last_r["start"]),int(r["end"]),int(last_r["end"])) > 0 and last_r["seqname"] == r["seqname"]: 
+                    toprint["end"] =  r["end"]
+                    last_r = r
+                    last_id = attr_d["ID"]
+                else:
+                    print(*toprint, sep="\t")
+                    last_r = r
+                    last_id = attr_d["ID"]
+                    toprint = r
+            else:
+                # if ID of current line not same as toprint, print the toprint
+                if len(toprint) > 0: 
+                    print(*toprint, sep="\t")
+                last_r = r
+                last_id = attr_d["ID"]
+                toprint = r
+        
+        #print the last record
+        print(*toprint, sep="\t")
 
 
 if __name__ == "__main__":
@@ -132,16 +181,26 @@ if __name__ == "__main__":
     ...
     ######################
 
+    - Rename chr
+    ./bioinfo_gff.py --rename_chr sample.gff --map chr_map.tsv
+
+    - Fuse overlapping (consecutive) feature by ID attribute 
+    ./bioinfo_gff.py --fuse sample.gff
+
     """
 
     parser = argparse.ArgumentParser(description=help_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("gff", type = str, help = "GFF3 file.")
     parser.add_argument("--reformat", action="store_true", help = "Reformat the gff attribute. Work with --rfmap and --rfdata.")
     parser.add_argument("--extract", action="store_true", help = "Reformat the gff attribute. Work with --id")
+    parser.add_argument("--rename_chr", action="store_true", help = "Rename chr (col[0]). Work with --map. First column is the ID in this gff, second column is the new value")
     parser.add_argument("--rfmap", type = str, dest="rfmap",help = "2 columns tsv specific the rule of reformat. <attribite name in gff/- (for new attribute)> <target column name in rfdata>.")
     parser.add_argument("--rfdata", type = str, dest="rfdata",help = "tsv metadata of gff. 'ID' column is used to map to gff 'ID' attribute for row mapping. Make sure ID is unique!!")
     parser.add_argument("--id", type = str, dest= "id",help = "ID list (no header)")
+    parser.add_argument("--map", type = str, dest= "map",help = "2 column map (.tsv)")
     parser.add_argument("--geneonly", action="store_true", help = "Only process gene, ignore and print out mRNA and CDS and other rows")
+    parser.add_argument("--fuse", action="store_true", help = "Fuse overlapping feature by ID attribute")
+
 
     args = parser.parse_args()
 
@@ -168,6 +227,19 @@ if __name__ == "__main__":
     if args.extract:
         gff = Gff(args.gff)
         gff.extract(args.id)
+
+    if args.rename_chr:
+        if args.map:
+            gff = Gff(args.gff)
+            gff.rename_chr(id_map=args.map)
+        else:
+            print("--map is missing.")
+            parser.print_help()
+            sys.exit()
+
+    if args.fuse:
+        gff = Gff(args.gff)
+        gff.fuse()
 
 
 
