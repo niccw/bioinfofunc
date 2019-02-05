@@ -139,7 +139,7 @@ def find_mirna_cluster(mirna_gff, mrna_gff):
                         # can group this miRNA with the last one :)
                         # check if this is the first initiation
                         if len(cluster_mir_id) > 0:  
-                            #FIXME: also check if the chr match ot not !!!!!! ROARRRR
+                            # also check if the chr match ot not !!!!!! ROARRRR
                             if col[0] != cluster_chr[-1]:
                                 pass
                             elif last_mirna["Name"] in cluster_mir_id[-1]: # the last miRNA is already in the 'current' cluster
@@ -177,6 +177,8 @@ def _attribute_to_dict(a:str)->dict:
 
 if __name__ == "__main__":
     help_text="""
+    This script assume only same miRNA only occur once per chr. Work fine in Dme but need to be tested on other fly species.
+
     Example:
     ./find_mirna_cluster.py --mirna mirna.gff3 --mrna mrna.gff > mirna_cluster.tsv
     """
