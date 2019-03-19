@@ -73,7 +73,8 @@ class Rm_out(object):
 
                 note = "Target=" + r["matching_repeat"] + " " + tstart + " " + tend
                 print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
-                print(*print_col, sep = "\t")
+                if len(line) > 1:
+                    print(*print_col, sep = "\t")
 
     def out2saf(self):
         print(*["GeneID", "Chr", "Start", "End", "Strand"], sep="\t")
@@ -104,7 +105,6 @@ if __name__ == "__main__":
         print("Converting .out to gff3",file=sys.stderr)
         o.out2gff3()
     if args.raw_gff3:
-        print("Converting .out to raw gff3",file=sys.stderr)
         Rm_out.out2_raw_gff3(args.out)
     if args.saf:
         o = Rm_out(args.out)
