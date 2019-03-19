@@ -49,6 +49,23 @@ class Rm_out(object):
             note = "Tstart=" + tstart + ";" + "Tend=" + tend + ";" + "ID=" +  r["matching_repeat"]
             print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
             print(*print_col, sep = "\t")
+    
+    def out2_raw_gff3(self):
+        print("##gff-version 3")
+        for _, r in self.out.iterrows():
+            if r["strand"] == "C":
+                s = "-"
+                tstart = r["repeat_pos_end"]
+                tend = r["repeat_pos_begin"].replace("(","")
+                tend = r["repeat_pos_begin"].replace(")","")
+            else:
+                s = "+"
+                tstart = r["repeat_pos_begin"]
+                tend = r["repeat_pos_end"]
+
+            note = "Target=" + r["matching_repeat"] + " " + tstart + " " + tend
+            print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
+            print(*print_col, sep = "\t")
 
     def out2saf(self):
         print(*["GeneID", "Chr", "Start", "End", "Strand"], sep="\t")
@@ -68,6 +85,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("out", type = str, help="RepeatMasker .out file")
     parser.add_argument("--gff3", action="store_true", help="Convert out file to GFF3 format")
+    parser.add_argument("--raw_gff3", action="store_true", help="Convert out file to raw GFF3 format from repeatmasker. The attribute column is Target=<family> start end")
     parser.add_argument("--saf", action="store_true", help="Convert out file to SAF format (for feature count)")
     parser.add_argument("--bed", action="store_true", help="Convert out file to BED format , name = matching_repeat;repeat_class")
     args = parser.parse_args()
@@ -76,6 +94,9 @@ if __name__ == "__main__":
     if args.gff3:
         print("Converting .out to gff3",file=sys.stderr)
         o.out2gff3()
+    if args.raw_gff3:
+        print("Converting .out to raw gff3",file=sys.stderr)
+        o.out2_raw_gff3()
     if args.saf:
         print("Converting .out to saf",file=sys.stderr)
         o.out2saf()
