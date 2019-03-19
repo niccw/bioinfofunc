@@ -56,8 +56,7 @@ class Rm_out(object):
             if r["strand"] == "C":
                 s = "-"
                 tstart = r["repeat_pos_end"]
-                tend = r["repeat_pos_begin"].replace("(","")
-                tend = r["repeat_pos_begin"].replace(")","")
+                tend = r["repeat_pos_begin"].replace("(","").replace(")","")
             else:
                 s = "+"
                 tstart = r["repeat_pos_begin"]
