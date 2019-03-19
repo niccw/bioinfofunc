@@ -50,21 +50,30 @@ class Rm_out(object):
             print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
             print(*print_col, sep = "\t")
     
-    def out2_raw_gff3(self):
-        print("##gff-version 3")
-        for _, r in self.out.iterrows():
-            if r["strand"] == "C":
-                s = "-"
-                tstart = r["repeat_pos_end"]
-                tend = r["repeat_pos_begin"].replace("(","").replace(")","")
-            else:
-                s = "+"
-                tstart = r["repeat_pos_begin"]
-                tend = r["repeat_pos_end"]
+    @staticmethod
+    def out2_raw_gff3(out_path):
+        header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
+        with open(out_path,"r") as f:
+            print("##gff-version 3")
+            for i in range(3):
+                    next(f)
+            for line in f:
+                col = line.rstrip().split()
+                if len(col) == 15:
+                    col.append("")
+                r = dict(zip(header,col))
+                if r["strand"] == "C":
+                    s = "-"
+                    tstart = r["repeat_pos_end"]
+                    tend = r["repeat_pos_begin"].replace("(","").replace(")","")
+                else:
+                    s = "+"
+                    tstart = r["repeat_pos_begin"]
+                    tend = r["repeat_pos_end"]
 
-            note = "Target=" + r["matching_repeat"] + " " + tstart + " " + tend
-            print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
-            print(*print_col, sep = "\t")
+                note = "Target=" + r["matching_repeat"] + " " + tstart + " " + tend
+                print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
+                print(*print_col, sep = "\t")
 
     def out2saf(self):
         print(*["GeneID", "Chr", "Start", "End", "Strand"], sep="\t")
@@ -89,16 +98,19 @@ if __name__ == "__main__":
     parser.add_argument("--bed", action="store_true", help="Convert out file to BED format , name = matching_repeat;repeat_class")
     args = parser.parse_args()
     
-    o = Rm_out(args.out)
+    
     if args.gff3:
+        o = Rm_out(args.out)
         print("Converting .out to gff3",file=sys.stderr)
         o.out2gff3()
     if args.raw_gff3:
         print("Converting .out to raw gff3",file=sys.stderr)
-        o.out2_raw_gff3()
+        Rm_out.out2_raw_gff3(args.out)
     if args.saf:
+        o = Rm_out(args.out)
         print("Converting .out to saf",file=sys.stderr)
         o.out2saf()
     if args.bed:
+        o = Rm_out(args.out)
         print("Converting .out to bed",file=sys.stderr)
         o.out2bed()
