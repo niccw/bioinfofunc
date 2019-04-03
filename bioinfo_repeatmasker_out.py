@@ -34,7 +34,7 @@ class Rm_out(object):
         return d
 
     def out2gff3(self):
-        print("##gff-version 3")
+        print("## gff-version 3")
         for _, r in self.out.iterrows():
             if r["strand"] == "C":
                 s = "-"
@@ -54,7 +54,7 @@ class Rm_out(object):
     def out2_raw_gff3(out_path):
         header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
         with open(out_path,"r") as f:
-            print("##gff-version 3")
+            print("## gff-version 3")
             for i in range(3):
                     next(f)
             for line in f:
