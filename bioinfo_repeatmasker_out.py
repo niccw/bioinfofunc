@@ -85,9 +85,14 @@ class Rm_out(object):
             print(*[geneid, r["query_seq"],  r["query_pos_begin"], r["query_pos_end"], strand], sep = "\t")
 
     def out2bed(self): # bed file is 0-base, out and gff3 is 1-base
+        """
+         * bed file is 0-base, out and gff3 is 1-base
+         output: 6 column bed file
+
+        """
         for _, r in self.out.iterrows():
             name = r["matching_repeat"] + ";" + r["repeat_class"]
-            print(*[r["query_seq"], r["query_pos_begin"]-1,  r["query_pos_end"], name], sep = "\t")
+            print(*[r["query_seq"], r["query_pos_begin"]-1,  r["query_pos_end"], name, "0", r["strand"]], sep = "\t")
 
 
 if __name__ == "__main__":
