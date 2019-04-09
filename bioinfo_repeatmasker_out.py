@@ -23,7 +23,7 @@ class Rm_out(object):
                  if len(cols) == 15:
                      cols.append("")
                  col_list.append(cols)
-            
+
         bed_df = pd.DataFrame(data=col_list,columns = header)
         return bed_df
 
@@ -92,7 +92,9 @@ class Rm_out(object):
         """
         for _, r in self.out.iterrows():
             name = r["matching_repeat"] + ";" + r["repeat_class"]
-            print(*[r["query_seq"], r["query_pos_begin"]-1,  r["query_pos_end"], name, "0", r["strand"]], sep = "\t")
+            strand = "+" if r["strand"] == "+" else "-" 
+            print(*[r["query_seq"], int(r["query_pos_begin"])-1,
+                r["query_pos_end"], name, "0", strand ], sep = "\t")
 
 
 if __name__ == "__main__":
