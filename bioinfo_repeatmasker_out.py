@@ -7,7 +7,7 @@ import pandas as pd
 class Rm_out(object):
     def __init__(self,path):
         self.path = path
-        self.out = Rm_out.out2df(self.path)
+        #self.out = Rm_out.out2df(self.path)
     
 
     @staticmethod
@@ -33,7 +33,9 @@ class Rm_out(object):
             d[r["matching_repeat"]] = r["repeat_class"]
         return d
 
-    def out2gff3(self):
+
+    # deprecated. Not necessary to read the whole file to memory
+    def out2gff3_deprecated(self):
         print("## gff-version 3")
         for _, r in self.out.iterrows():
             if r["strand"] == "C":
@@ -49,6 +51,33 @@ class Rm_out(object):
             note = "Tstart=" + tstart + ";" + "Tend=" + tend + ";" + "ID=" +  r["matching_repeat"]
             print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
             print(*print_col, sep = "\t")
+
+    @staticmethod
+    def  out2gff3(out_path):
+        header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
+        with open(out_path,"r") as f:
+            print("## gff-version 3")
+            for i in range(3):
+                    next(f)
+            for line in f:
+                col = line.rstrip().split()
+                if len(col) == 15:
+                    col.append("")
+                r = dict(zip(header,col))
+                if r["strand"] == "C":
+                    s = "-"
+                    tstart = r["repeat_pos_end"]
+                    tend = r["repeat_pos_begin"].replace("(","").replace(")","")
+                else:
+                    s = "+"
+                    tstart = r["repeat_pos_begin"]
+                    tend = r["repeat_pos_end"]
+
+                note = "Tstart=" + tstart + ";" + "Tend=" + tend + ";" + "ID=" +  r["matching_repeat"]
+                print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["perc_div"], s, ".", note]
+                if len(line) > 1: # for safe
+                    print(*print_col, sep = "\t")
+
     
     @staticmethod
     def out2_raw_gff3(out_path):
@@ -72,7 +101,7 @@ class Rm_out(object):
                     tend = r["repeat_pos_end"]
 
                 note = "Target=" + r["matching_repeat"] + " " + tstart + " " + tend
-                print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["sw_score"], s, ".", note]
+                print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["perc_div"], s, ".", note]
                 if len(line) > 1:
                     print(*print_col, sep = "\t")
 
@@ -110,14 +139,17 @@ if __name__ == "__main__":
     if args.gff3:
         o = Rm_out(args.out)
         print("Converting .out to gff3",file=sys.stderr)
-        o.out2gff3()
+        Rm_out.out2gff3(args.out)
     if args.raw_gff3:
+        print("Converting .out to raw gff3",file=sys.stderr)
         Rm_out.out2_raw_gff3(args.out)
     if args.saf:
+        sys.exit("FIXME, read line by line, don't read into memory")
         o = Rm_out(args.out)
         print("Converting .out to saf",file=sys.stderr)
         o.out2saf()
     if args.bed:
+        sys.exit("FIXME, read line by line, don't read into memory")
         o = Rm_out(args.out)
         print("Converting .out to bed",file=sys.stderr)
         o.out2bed()
