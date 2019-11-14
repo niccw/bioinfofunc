@@ -53,7 +53,7 @@ class Rm_out(object):
             print(*print_col, sep = "\t")
 
     @staticmethod
-    def  out2gff3(out_path):
+    def  out2gff3(out_path, filter8080 = False):
         header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
         with open(out_path,"r") as f:
             print("## gff-version 3")
@@ -61,6 +61,10 @@ class Rm_out(object):
                     next(f)
             for line in f:
                 col = line.rstrip().split()
+                if filter8080:
+                    telen = abs(int(col[6] - col[5]))
+                    if telen < 80 or int(col[1]) > 20:
+                        continue
                 if len(col) == 15:
                     col.append("")
                 r = dict(zip(header,col))
@@ -133,13 +137,14 @@ if __name__ == "__main__":
     parser.add_argument("--raw_gff3", action="store_true", help="Convert out file to raw GFF3 format from repeatmasker. The attribute column is Target=<family> start end")
     parser.add_argument("--saf", action="store_true", help="Convert out file to SAF format (for feature count)")
     parser.add_argument("--bed", action="store_true", help="Convert out file to BED format , name = matching_repeat;repeat_class")
+    parser.add_argument("--filter", action="store_true", help="Use 80/80 filtering for gff3 convertion")
+
     args = parser.parse_args()
     
     
     if args.gff3:
-        o = Rm_out(args.out)
         print("Converting .out to gff3",file=sys.stderr)
-        Rm_out.out2gff3(args.out)
+        Rm_out.out2gff3(args.out, filter8080 = args.filter)
     if args.raw_gff3:
         print("Converting .out to raw gff3",file=sys.stderr)
         Rm_out.out2_raw_gff3(args.out)
