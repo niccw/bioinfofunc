@@ -63,7 +63,7 @@ class Rm_out(object):
                 col = line.rstrip().split()
                 if filter8080:
                     telen = abs(int(col[6]) - int(col[5]))
-                    if telen < 80 or int(col[1]) > 20:
+                    if telen < 80 or float(col[1]) > 20:
                         continue
                 if len(col) == 15:
                     col.append("")
