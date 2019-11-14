@@ -62,7 +62,7 @@ class Rm_out(object):
             for line in f:
                 col = line.rstrip().split()
                 if filter8080:
-                    telen = abs(int(col[6] - col[5]))
+                    telen = abs(int(col[6]) - int(col[5]))
                     if telen < 80 or int(col[1]) > 20:
                         continue
                 if len(col) == 15:
