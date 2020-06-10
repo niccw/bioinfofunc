@@ -37,6 +37,7 @@ class Gff3(object):
             for line in f:
                 if line.startswith("#") or not line.strip():
                     next(f)
+                    continue
                 col = line.strip().split("\t")
                 chrom = col[0]
                 general_class = col[2]

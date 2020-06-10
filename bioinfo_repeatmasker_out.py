@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import argparse
 import pandas as pd
 
@@ -54,6 +55,10 @@ class Rm_out(object):
 
     @staticmethod
     def  out2gff3(out_path, filter8080 = False):
+        # file for error output
+        err_out_name = "out2gff3.err"
+        err = open(err_out_name,"w")
+
         header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
         with open(out_path,"r") as f:
             print("## gff-version 3")
@@ -65,6 +70,13 @@ class Rm_out(object):
                     telen = abs(int(col[6]) - int(col[5]))
                     if telen < 80 or float(col[1]) > 20:
                         continue
+                # check if the .out format is correct (repeatmasker may write wrong output sometimes :( )
+                try:
+                    int(col[5])
+                    int(col[6])
+                except ValueError as v:
+                    print(f"{col[5]}\n{v}", file=sys.stderr)
+                    print(f"{line}\n", file=err)
                 if len(col) == 15:
                     col.append("")
                 r = dict(zip(header,col))
@@ -81,6 +93,11 @@ class Rm_out(object):
                 print_col = [r["query_seq"], "RepeatMasker", r["repeat_class"], r["query_pos_begin"], r["query_pos_end"], r["perc_div"], s, ".", note]
                 if len(line) > 1: # for safe
                     print(*print_col, sep = "\t")
+        
+        err.close()
+        err_num_lines = sum(1 for line in open(err_out_name,"r"))
+        if err_num_lines == 0:
+            os.remove(err_out_name)     
 
     
     @staticmethod
