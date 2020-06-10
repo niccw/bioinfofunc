@@ -134,7 +134,27 @@ class Rm_out(object):
             strand = "-" if r["strand"] == "C" else "+"
             print(*[geneid, r["query_seq"],  r["query_pos_begin"], r["query_pos_end"], strand], sep = "\t")
 
-    def out2bed(self): # bed file is 0-base, out and gff3 is 1-base
+    @staticmethod
+    def out2bed(out_path):
+        """
+         * bed file is 0-base, out and gff3 is 1-base
+         output: 6 column bed file
+        """
+        header = ["sw_score", "perc_div", "perc_del", "perc_ins", "query_seq", "query_pos_begin", "query_pos_end", "query_left", "strand", "matching_repeat", "repeat_class", "repeat_pos_begin", "repeat_pos_end", "repeat_pos_left", "id", "asterisk"]
+        with open(out_path,"r") as f:
+            for i in range(3):
+                    next(f)
+            for line in f:
+                col = line.rstrip().split()
+                if len(col) == 15:
+                    col.append("")
+                r = dict(zip(header,col))
+                name = r["matching_repeat"] + ";" + r["repeat_class"]
+                strand = "+" if r["strand"] == "+" else "-" 
+                print(*[r["query_seq"], int(r["query_pos_begin"])-1,
+                int(r["query_pos_end"])-1, name, "0", strand ], sep = "\t")
+
+    def out2bed_deprecated(self): # bed file is 0-base, out and gff3 is 1-base
         """
          * bed file is 0-base, out and gff3 is 1-base
          output: 6 column bed file
@@ -171,7 +191,5 @@ if __name__ == "__main__":
         print("Converting .out to saf",file=sys.stderr)
         o.out2saf()
     if args.bed:
-        sys.exit("FIXME, read line by line, don't read into memory")
-        o = Rm_out(args.out)
         print("Converting .out to bed",file=sys.stderr)
-        o.out2bed()
+        Rm_out.out2bed(args.out)
